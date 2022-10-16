@@ -166,12 +166,10 @@ def upload_asset(session, file_path):
     }
     res: requests.Response = session.post(api_path, data=m, headers=headers)
 
-    session: rq.Session
-    prepared = session.prepare_request(res.request)
     if res.status_code != 200:
         msg = f"asset upload error: {res.json()}"
         msg += f"\n{res.request.headers}"
-        msg += f"\n{prepared.body}"
+        msg += f"\n{m.to_string()}"
         raise HTTPException(
             status_code=500,
             detail=msg
