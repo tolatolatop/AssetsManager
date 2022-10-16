@@ -6,9 +6,13 @@
 import os
 import urllib.parse
 
+import requests
 import requests as rq
+from fastapi import HTTPException
 
 immich_host = os.environ["IMMICH_HOST"]
+agent_email = os.environ["AGENT_EMAIL"]
+agent_password = os.environ["AGENT_PASSWORD"]
 
 
 def get_session_of_immich():
@@ -31,3 +35,48 @@ def login(session, email, password):
 
     res = session.post(api_path, json=body)
     return res.json()
+
+
+def get_all_albums(session):
+    api_path = urllib.parse.urljoin(immich_host, "api/album")
+    res: requests.Response = session.get(api_path)
+    return res.json()
+
+
+def get_album_info(session, album_name):
+    api_path = urllib.parse.urljoin(immich_host, "api/album")
+
+    res: requests.Response = session.get(api_path)
+    if res.status_code == 200:
+        data = res.json()
+        for d in data:
+            if d["albumName"] == album_name:
+                return data
+        raise HTTPException(status_code=404, detail="Item not found")
+    return res.json()
+
+
+def get_all_album_assets(session, album_id):
+    api_path = urllib.parse.urljoin(immich_host, f"api/album/{album_id}")
+
+    res: requests.Response = session.get(api_path)
+    if res.status_code == 200:
+        data = res.json()
+        return data["assets"]
+    return res.json()
+
+
+def download_file_to_disk(session, asset_id, dir_path):
+    api_path = urllib.parse.urljoin(immich_host, f"api/asset/download")
+    params = {
+        "aid": asset_id,
+        "did": "WEB",
+        "isThumb": False,
+        "isWeb": False
+    }
+
+    res: requests.Response = session.get(api_path, params=params)
+    if res.status_code == 200:
+        data = res.content
+        return data
+    raise HTTPException(status_code=404, detail="Item not found")
