@@ -99,6 +99,7 @@ def download_assets_in_album(session, album_name):
     if not album_path.exists():
         album_path.mkdir(exist_ok=True, parents=True)
 
+    file_name_set = set()
     for asset in assets:
         asset_id = asset["deviceAssetId"]
         remote_path = asset["originalPath"]
@@ -108,4 +109,10 @@ def download_assets_in_album(session, album_name):
             data = get_assert_data(session, asset_id)
             with asset_path.open("wb") as f:
                 f.write(data)
+
+        file_name_set.add(file_name)
+
+    for file in album_path.glob("*"):
+        if file.name not in file_name_set:
+            os.remove(file)
     return {"status": "ok", "album_path": str(album_path.absolute())}
