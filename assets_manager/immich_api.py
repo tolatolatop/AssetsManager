@@ -81,7 +81,7 @@ def get_assert_data(session, asset_id):
     if res.status_code == 200:
         data = res.content
         return data
-    raise HTTPException(status_code=404, detail="Item not found")
+    raise HTTPException(status_code=404, detail=f"asset not found: {asset_id} {res.request.url}")
 
 
 def get_album_id(session, album_name):
