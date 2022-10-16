@@ -9,6 +9,7 @@ import pathlib
 import urllib.parse
 
 import requests
+from requests_toolbelt import MultipartEncoder
 import requests as rq
 from fastapi import HTTPException
 
@@ -146,21 +147,24 @@ def delete_album(session, album_name):
 
 def upload_asset(session, file_path):
     api_path = urllib.parse.urljoin(immich_host, f"api/asset/upload")
-    file = {
-        "deviceAssetId": "web" + file_path.name + '-' + str(int(file_path.stat().st_ctime)),
-        "deviceId": "WEB",
-        "assetType": "IMAGE",
-        "createdAt": datetime.datetime.fromtimestamp(file_path.stat().st_ctime).strftime('%Y-%m-%dT%H:%M:%SZ'),
-        "modifiedAt": datetime.datetime.fromtimestamp(file_path.stat().st_mtime).strftime('%Y-%m-%dT%H:%M:%SZ'),
-        "isFavorite": "false",
-        "duration": "0:00:00.000000",
-        "fileExtension": file_path.suffix,
-        "assetData": open(file_path, 'rb'),
-    }
+    m = MultipartEncoder(
+        fields={
+            "deviceAssetId": "web" + file_path.name + '-' + str(int(file_path.stat().st_ctime)),
+            "deviceId": "WEB",
+            "assetType": "IMAGE",
+            "createdAt": datetime.datetime.fromtimestamp(file_path.stat().st_ctime).strftime('%Y-%m-%dT%H:%M:%SZ'),
+            "modifiedAt": datetime.datetime.fromtimestamp(file_path.stat().st_mtime).strftime('%Y-%m-%dT%H:%M:%SZ'),
+            "isFavorite": "false",
+            "duration": "0:00:00.000000",
+            "fileExtension": file_path.suffix,
+            "assetData": open(file_path, 'rb')
+        }
+    )
+
     headers = {
-        "Content-Type": "multipart/form-data;"
+        "Content-Type": m.content_type
     }
-    res: requests.Response = session.post(api_path, data=file, headers=headers)
+    res: requests.Response = session.post(api_path, data=m, headers=headers)
     if res.status_code != 200:
         raise HTTPException(
             status_code=500,
