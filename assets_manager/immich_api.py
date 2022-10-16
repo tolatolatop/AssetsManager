@@ -168,7 +168,7 @@ def upload_asset(session, file_path):
     }
     res: requests.Response = session.post(api_path, data=m, headers=headers)
 
-    if res.status_code != 200:
+    if res.status_code not in (200, 201):
         msg = f"asset upload error {res.status_code}: {res.json()}"
         msg += f"\n{res.request.headers}"
         msg += f"\n{res.request.body}"
