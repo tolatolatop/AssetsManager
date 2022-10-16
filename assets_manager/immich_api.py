@@ -73,8 +73,8 @@ def get_assert_data(session, asset_id):
     params = {
         "aid": asset_id,
         "did": "WEB",
-        "isThumb": False,
-        "isWeb": False
+        "isThumb": "false",
+        "isWeb": "false"
     }
 
     res: requests.Response = session.get(api_path, params=params)
