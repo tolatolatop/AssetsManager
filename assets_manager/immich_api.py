@@ -147,7 +147,7 @@ def upload_asset(session, file_path):
     api_path = urllib.parse.urljoin(immich_host, f"api/asset/upload")
     file = {'filename': (file_path.name, open(file_path, 'rb'))}
     headers = {
-        "Content-Type": "multipart/form-data"
+        "Content-Type": "multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW"
     }
     res: requests.Response = session.post(api_path, files=file, headers=headers)
     if res.status_code != 200:
