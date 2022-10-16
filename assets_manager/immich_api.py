@@ -145,7 +145,7 @@ def delete_album(session, album_name):
 
 def upload_asset(session, file_path):
     api_path = urllib.parse.urljoin(immich_host, f"api/asset/upload")
-    file = {'file': (file_path.name, open(file_path, 'rb'))}
+    file = {'filename': (file_path.name, open(file_path, 'rb'))}
     headers = {
         "Content-Type": "multipart/form-data"
     }
