@@ -3,6 +3,7 @@
 # @Time    : 2022/10/16 17:16
 # @Author  : tolatolatop
 # @File    : immich_api.py
+import datetime
 import os
 import pathlib
 import urllib.parse
@@ -145,7 +146,17 @@ def delete_album(session, album_name):
 
 def upload_asset(session, file_path):
     api_path = urllib.parse.urljoin(immich_host, f"api/asset/upload")
-    file = {file_path.name: open(file_path, 'rb')}
+    file = {
+        "deviceAssetId": "web",
+        "deviceId": "WEB",
+        "assetType": "IMAGE",
+        "createdAt": datetime.datetime.fromtimestamp(file_path.stat().st_ctime).strftime('%Y-%m-%dT%H:%M:%SZ'),
+        "modifiedAt": datetime.datetime.fromtimestamp(file_path.stat().st_mtime).strftime('%Y-%m-%dT%H:%M:%SZ'),
+        "isFavorite": "false",
+        "duration": "0:00:00.000000",
+        "fileExtension": file_path.suffix,
+        "assetData": open(file_path, 'rb'),
+    }
     headers = {
         "Content-Type": "multipart/form-data;"
     }
