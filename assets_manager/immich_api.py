@@ -14,7 +14,8 @@ immich_host = os.environ["IMMICH_HOST"]
 def get_session_of_immich():
     session = rq.Session()
     headers = {
-        "contentTypes": "application/json"
+        "Content-Type": "application/json",
+        "Accept": "application/json, text/plain, */*"
     }
     session.headers = headers
 
@@ -28,5 +29,5 @@ def login(session, email, password):
         "password": password
     }
 
-    res = session.post(api_path, body=body)
+    res = session.post(api_path, json=body)
     return res.json()
