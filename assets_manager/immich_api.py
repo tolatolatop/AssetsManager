@@ -147,7 +147,7 @@ def upload_asset(session, file_path):
     with open(file_path, 'rb') as f:
         data = f.read()
     api_path = urllib.parse.urljoin(immich_host, f"api/asset/upload")
-    res: requests.Response = session.post(api_path, body=data)
+    res: requests.Response = session.post(api_path, data=data)
     return res.json()
 
 
