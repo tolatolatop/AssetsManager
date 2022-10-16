@@ -1,0 +1,16 @@
+version: "3.8"
+
+services:
+  assets_manager:
+    image: assets_manager:latest
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: builder
+    command: bash start.sh
+    volumes:
+      - ${ASSETS_LOCATION}:/root/assets
+    env_file:
+      - .env
+    ports:
+      - 7890:80
