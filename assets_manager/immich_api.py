@@ -51,7 +51,7 @@ def get_album_info(session, album_name):
         data = res.json()
         for d in data:
             if d["albumName"] == album_name:
-                return data
+                return d
         raise HTTPException(status_code=404, detail="Item not found")
     return res.json()
 
