@@ -157,7 +157,7 @@ def upload_asset(session, file_path):
             "isFavorite": "false",
             "duration": "0:00:00.000000",
             "fileExtension": file_path.suffix,
-            "assetData": open(file_path, 'rb')
+            "assetData": (file_path.name, open(file_path, 'rb'))
         }
     )
 
