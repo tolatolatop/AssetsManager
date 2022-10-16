@@ -7,7 +7,7 @@ from typing import Union
 
 from fastapi import FastAPI
 
-from assets_manager import immich_api
+import immich_api
 
 app = FastAPI()
 
