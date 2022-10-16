@@ -147,7 +147,7 @@ def delete_album(session, album_name):
 def upload_asset(session, file_path):
     api_path = urllib.parse.urljoin(immich_host, f"api/asset/upload")
     file = {
-        "deviceAssetId": "web",
+        "deviceAssetId": "web" + file_path.name + '-' + str(int(file_path.stat().st_ctime)),
         "deviceId": "WEB",
         "assetType": "IMAGE",
         "createdAt": datetime.datetime.fromtimestamp(file_path.stat().st_ctime).strftime('%Y-%m-%dT%H:%M:%SZ'),
