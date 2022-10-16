@@ -119,6 +119,12 @@ def download_assets_in_album(session, album_name):
 
 
 def create_album(session, album_name, exists_ok=True, asset_ids=None):
+    if exists_ok:
+        try:
+            album_info = get_album_info(session, album_name)
+            return album_info
+        except HTTPException as e:
+            pass
 
     api_path = urllib.parse.urljoin(immich_host, "api/album")
     body = {
