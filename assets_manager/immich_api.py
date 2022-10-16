@@ -182,10 +182,7 @@ def upload_asset(session, file_path):
 def add_assets_to_album(session, asset_ids, album_name):
     album_id = get_album_id(session, album_name)
     body = {
-        "albumId": album_id,
-        "addAssetsDto": {
-            "assetIds": asset_ids
-        }
+        "assetIds": asset_ids
     }
     api_path = urllib.parse.urljoin(immich_host, f"api/album/{album_id}/assets")
     res: requests.Response = session.put(api_path, json=body)
