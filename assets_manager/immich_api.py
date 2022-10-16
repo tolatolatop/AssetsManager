@@ -119,12 +119,6 @@ def download_assets_in_album(session, album_name):
 
 
 def create_album(session, album_name, exists_ok=True, asset_ids=None):
-    if exists_ok:
-        try:
-            album_info = get_album_info(session, album_name)
-            return album_info
-        except HTTPException as e:
-            raise e
 
     api_path = urllib.parse.urljoin(immich_host, "api/album")
     body = {
@@ -160,7 +154,7 @@ def add_assets_to_album(session, asset_ids, album_name):
         }
     }
     api_path = urllib.parse.urljoin(immich_host, f"api/album/{album_id}/assets")
-    res: requests.Response = session.delete(api_path, json=body)
+    res: requests.Response = session.put(api_path, json=body)
     if res.status_code != 200:
         raise HTTPException(
             status_code=500,
