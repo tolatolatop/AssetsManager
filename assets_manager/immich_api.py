@@ -147,17 +147,19 @@ def delete_album(session, album_name):
 
 def upload_asset(session, file_path):
     api_path = urllib.parse.urljoin(immich_host, f"api/asset/upload")
+    c_time = datetime.datetime.fromtimestamp(file_path.stat().st_ctime)
+    m_time = datetime.datetime.fromtimestamp(file_path.stat().st_mtime)
     m = MultipartEncoder(
         fields={
-            "deviceAssetId": "web" + file_path.name + '-' + str(int(file_path.stat().st_ctime)),
+            "deviceAssetId": "web-" + file_path.name + '-' + str(int(file_path.stat().st_ctime)),
             "deviceId": "WEB",
             "assetType": "IMAGE",
-            "createdAt": datetime.datetime.fromtimestamp(file_path.stat().st_ctime).strftime('%Y-%m-%dT%H:%M:%SZ'),
-            "modifiedAt": datetime.datetime.fromtimestamp(file_path.stat().st_mtime).strftime('%Y-%m-%dT%H:%M:%SZ'),
+            "createdAt": c_time.isoformat()[:-3] + 'Z',
+            "modifiedAt": m_time.isoformat()[:-3] + 'Z',
             "isFavorite": "false",
             "duration": "0:00:00.000000",
             "fileExtension": file_path.suffix,
-            "assetData": (file_path.name, open(file_path, 'rb'), 'image/jpeg')
+            "assetData": (file_path.name, open(file_path, 'rb'))
         }
     )
 
@@ -169,7 +171,7 @@ def upload_asset(session, file_path):
     if res.status_code != 200:
         msg = f"asset upload error: {res.json()}"
         msg += f"\n{res.request.headers}"
-        msg += f"\n{m.to_string()}"
+        msg += f"\n{res.request.body}"
         raise HTTPException(
             status_code=500,
             detail=msg
