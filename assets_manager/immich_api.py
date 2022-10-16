@@ -116,3 +116,69 @@ def download_assets_in_album(session, album_name):
         if file.name not in file_name_set:
             os.remove(file)
     return {"status": "ok", "album_path": str(album_path.absolute())}
+
+
+def create_album(session, album_name, exists_ok=True, asset_ids=None):
+    if exists_ok:
+        try:
+            album_info = get_album_info(session, album_name)
+            return album_info
+        except HTTPException as e:
+            raise e
+
+    api_path = urllib.parse.urljoin(immich_host, "api/album")
+    body = {
+        "albumName": album_name,
+        "sharedWithUserIds": [],
+        "assetIds": asset_ids if asset_ids is not None else []
+    }
+    res: requests.Response = session.post(api_path, json=body)
+    return res.json()
+
+
+def delete_album(session, album_name):
+    album_id = get_album_id(session, album_name)
+    api_path = urllib.parse.urljoin(immich_host, f"api/album/{album_id}")
+    res: requests.Response = session.delete(api_path)
+    return res.json()
+
+
+def upload_asset(session, file_path):
+    with open(file_path, 'rb') as f:
+        data = f.read()
+    api_path = urllib.parse.urljoin(immich_host, f"api/asset/upload")
+    res: requests.Response = session.post(api_path, body=data)
+    return res.json()
+
+
+def add_assets_to_album(session, asset_ids, album_name):
+    album_id = get_album_id(session, album_name)
+    body = {
+        "albumId": album_id,
+        "addAssetsDto": {
+            "assetIds": asset_ids
+        }
+    }
+    api_path = urllib.parse.urljoin(immich_host, f"api/album/{album_id}/assets")
+    res: requests.Response = session.delete(api_path, json=body)
+    if res.status_code != 200:
+        raise HTTPException(
+            status_code=500,
+            detail=f"asset not found: add {asset_ids} to {album_id} error {res.content}"
+        )
+    return res.json()
+
+
+def upload_album(session, album_name):
+    root_path = pathlib.Path(agent_root_path) / album_name
+
+    res = create_album(session, album_name, exists_ok=True)
+    album_id = res["id"]
+    asset_ids = []
+    for f in root_path.glob("*"):
+        if f.is_file():
+            res = upload_asset(session, file_path=f.absolute())
+            asset_id = res["id"]
+            asset_ids.append(asset_id)
+    add_assets_to_album(session, asset_ids, album_name)
+    return {"status": "success", "album_id": album_id}

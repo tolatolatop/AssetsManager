@@ -61,3 +61,11 @@ def agent_export_album(album_name: str):
     res = immich_api.login(session, immich_api.agent_email, immich_api.agent_password)
     res = immich_api.download_assets_in_album(session, album_name)
     return res
+
+
+@app.post("/immich/import/{album_name}")
+def agent_import_album(album_name: str):
+    session = immich_api.get_session_of_immich()
+    res = immich_api.login(session, immich_api.agent_email, immich_api.agent_password)
+    res = immich_api.upload_album(session, album_name)
+    return res
