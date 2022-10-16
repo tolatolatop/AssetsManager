@@ -146,7 +146,10 @@ def delete_album(session, album_name):
 def upload_asset(session, file_path):
     api_path = urllib.parse.urljoin(immich_host, f"api/asset/upload")
     file = {file_path.name: open(file_path, 'rb')}
-    res: requests.Response = session.post(api_path, files=file)
+    headers = {
+        "Content-Type": "multipart/form-data;"
+    }
+    res: requests.Response = session.post(api_path, files=file, headers=headers)
     if res.status_code != 200:
         raise HTTPException(
             status_code=500,
